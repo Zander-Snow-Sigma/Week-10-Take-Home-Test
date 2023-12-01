@@ -10,6 +10,8 @@ import requests
 COURTS_API_URL = "https://www.find-court-tribunal.service.gov.uk/search/results.json?postcode="
 SUCCESSFUL_STATUS_CODE = 200
 PEOPLE_CSV_FILE = "people.csv"
+REPORT_CSV_FILE = "report.csv"
+REPORT_MD_FILE = "report.md"
 
 
 def load_csv_data(file: str) -> pd.DataFrame:
@@ -52,5 +54,5 @@ if __name__ == "__main__":
         court_data.sort(key=lambda x: x['distance'])
         add_court_info_to_dataframe(data, court_data, i)
 
-    data.to_csv("report.csv", index=False)
-    data.to_markdown("report.md", index=False)
+    data.to_csv(REPORT_CSV_FILE, index=False)
+    data.to_markdown(REPORT_MD_FILE, index=False)
