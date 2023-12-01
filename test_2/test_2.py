@@ -82,42 +82,40 @@ def load_csv_data(file: str) -> pd.DataFrame:
 
 
 def get_nearest_courts_data(postcode: str) -> list:
-    """Returns the API response..."""
+    """Returns information about the nearest courts to a given postcode."""
 
     response = requests.get(COURTS_API_URL + postcode)
 
     if response.status_code == 200:
         return response.json()
 
-    raise Exception(f"{response.status_code} Error")
+    raise requests.HTTPError(
+        f"{response.status_code} Error")
+
+
+def add_court_info_to_dataframe(df: pd.DataFrame, court_data: list, index: int) -> None:
+    """Adds the relevant court data to the data frame at the specified index."""
+    for court in court_data:
+        if df.at[index, 'looking_for_court_type'] in court['types']:
+            df.at[index, 'court_name'] = court['name']
+            df.at[index, 'distance_to_court'] = court['distance']
+            df.at[index, 'court_dx_number'] = court.get('dx_number')
+            break
 
 
 if __name__ == "__main__":
-    # [TODO]: write your answer here
-    # PLAN
-    # 1 - load in csv data
-    # 2 - convert to pandas
-    # 3 - iterate throw rows
-    # 4 - make an api call with the postcode
-    # 5 - get relevant data from response
-    # 6 - find closest court of correct type
-    # 7 - add court data to pandas dataframe
-    # 8 - save as a csv
+
+    get_nearest_courts_data("asff")
 
     data = load_csv_data("people.csv")
     data['court_name'] = None
     data['distance_to_court'] = None
     data['court_dx_number'] = None
 
-    for index, row in data.iterrows():
-        court_data = get_nearest_courts_data(row['home_postcode'])
+    for i in data.index:
+        court_data = get_nearest_courts_data(data.at[i, 'home_postcode'])
         court_data.sort(key=lambda x: x['distance'])
-        for court in court_data:
-            if row['looking_for_court_type'] in court['types']:
-                data.at[index, 'court_name'] = court['name']
-                data.at[index, 'distance_to_court'] = court['distance']
-                data.at[index, 'court_dx_number'] = court.get('dx_number')
-                break
+        add_court_info_to_dataframe(data, court_data, i)
 
     data.to_csv("report.csv", index=False)
     data.to_markdown("report.md", index=False)
