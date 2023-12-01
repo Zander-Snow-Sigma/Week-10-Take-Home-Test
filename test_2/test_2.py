@@ -21,7 +21,7 @@ def load_csv_data(file: str) -> pd.DataFrame:
 def get_nearest_courts_data(postcode: str) -> list:
     """Returns information about the nearest courts to a given postcode."""
 
-    response = requests.get(COURTS_API_URL + postcode)
+    response = requests.get(COURTS_API_URL + postcode, timeout=10)
 
     if response.status_code == SUCCESSFUL_STATUS_CODE:
         return response.json()
@@ -30,13 +30,13 @@ def get_nearest_courts_data(postcode: str) -> list:
         f"{response.status_code} Error")
 
 
-def add_court_info_to_dataframe(df: pd.DataFrame, court_data: list, index: int) -> None:
+def add_court_info_to_dataframe(dataframe: pd.DataFrame, court_info: list, index: int) -> None:
     """Adds the relevant court data to the data frame at the specified index."""
-    for court in court_data:
-        if df.at[index, 'looking_for_court_type'] in court['types']:
-            df.at[index, 'court_name'] = court['name']
-            df.at[index, 'distance_to_court'] = court['distance']
-            df.at[index, 'court_dx_number'] = court.get('dx_number')
+    for court in court_info:
+        if dataframe.at[index, 'looking_for_court_type'] in court['types']:
+            dataframe.at[index, 'court_name'] = court['name']
+            dataframe.at[index, 'distance_to_court'] = court['distance']
+            dataframe.at[index, 'court_dx_number'] = court.get('dx_number')
             break
 
 

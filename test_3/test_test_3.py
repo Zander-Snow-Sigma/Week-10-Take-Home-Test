@@ -1,3 +1,5 @@
+"""Unit tests for test_3."""
+
 import pytest
 
 from test_3 import sum_current_time
@@ -19,16 +21,16 @@ def test_sum_current_time_3():
     assert sum_current_time("12:04:56") == 72
 
 
-def test_sum_current_time_4():
-    with pytest.raises(Exception):
+def test_sum_current_time_value_error():
+    with pytest.raises(ValueError):
         sum_current_time("12:04/56")
 
 
-def test_sum_current_time_5():
-    with pytest.raises(Exception):
+def test_sum_current_time_value_error_2():
+    with pytest.raises(ValueError):
         sum_current_time("120456")
 
 
-def test_sum_current_time_6():
-    with pytest.raises(Exception):
+def test_sum_current_time_type_error():
+    with pytest.raises(TypeError):
         sum_current_time(1234)

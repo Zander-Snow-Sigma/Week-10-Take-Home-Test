@@ -1,33 +1,35 @@
 """Script which extracts and structures data from the file sample.log."""
 
 
-def is_log_line(line: str) -> bool:
+LOG_LEVELS = ["INFO", "TRACE", "WARNING"]
+
+
+def is_log_line(log_line: str) -> bool:
     """Takes a log line and returns True if it is a valid log line and returns nothing
     if it is not.
     """
 
-    if not line[0].isnumeric():
+    if not log_line[0].isnumeric():
         return False
 
-    if "/" not in line[0:3]:
+    if "/" not in log_line[0:3]:
         return False
 
     return True
 
 
-def get_dict(line: str) -> dict:
+def get_dict(log_line: str) -> dict:
     """Takes a log line and returns a dict with
     `timestamp`, `log_level`, `message` keys
     """
 
-    LEVELS = ["INFO", "TRACE", "WARNING"]
-    timestamp = line[0:17]
+    timestamp = log_line[0:17]
     log_level = ""
-    for level in LEVELS:
-        if level in line:
+    for level in LOG_LEVELS:
+        if level in log_line:
             log_level += level
-    msg_start = line.find(":.")
-    message = line[msg_start:].strip()
+    msg_start = log_line.find(":.")
+    message = log_line[msg_start:].strip()
     return {'timestamp': timestamp, 'log_level': log_level, "message": message}
 
 
