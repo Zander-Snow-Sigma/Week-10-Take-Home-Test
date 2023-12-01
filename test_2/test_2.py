@@ -69,9 +69,55 @@
 # - the dx_number (if available) of the nearest court of the right type
 # - the distance to the nearest court of the right type
 
+import pandas as pd
+import requests
+
+COURTS_API_URL = "https://www.find-court-tribunal.service.gov.uk/search/results.json?postcode="
+
+
+def load_csv_data(file: str) -> pd.DataFrame:
+    """Returns the csv data from a file as a pd.DataFrame."""
+
+    return pd.read_csv(file)
+
+
+def get_nearest_courts_data(postcode: str) -> list:
+    """Returns the API response..."""
+
+    response = requests.get(COURTS_API_URL + postcode)
+
+    if response.status_code == 200:
+        return response.json()
+
+    raise Exception(f"{response.status_code} Error")
+
+
 if __name__ == "__main__":
     # [TODO]: write your answer here
     # PLAN
     # 1 - load in csv data
-    # 2 - 
-    pass
+    # 2 - convert to pandas
+    # 3 - iterate throw rows
+    # 4 - make an api call with the postcode
+    # 5 - get relevant data from response
+    # 6 - find closest court of correct type
+    # 7 - add court data to pandas dataframe
+    # 8 - save as a csv
+
+    data = load_csv_data("people.csv")
+    data['court_name'] = None
+    data['distance_to_court'] = None
+    data['court_dx_number'] = None
+
+    for index, row in data.iterrows():
+        court_data = get_nearest_courts_data(row['home_postcode'])
+        court_data.sort(key=lambda x: x['distance'])
+        for court in court_data:
+            if row['looking_for_court_type'] in court['types']:
+                data.at[index, 'court_name'] = court['name']
+                data.at[index, 'distance_to_court'] = court['distance']
+                data.at[index, 'court_dx_number'] = court.get('dx_number')
+                break
+
+    data.to_csv("report.csv", index=False)
+    data.to_markdown("report.md", index=False)
